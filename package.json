@@ -13,6 +13,9 @@
     "type": "git",
     "url": "git+https://github.com/remla23-team08/lib.git"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "author": "@remla23-team08",
   "license": "ISC",
   "bugs": {

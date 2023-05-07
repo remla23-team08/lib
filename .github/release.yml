@@ -1,0 +1,28 @@
+name: Release library by publishing as NPM package to GitHub Packages Registry
+on:
+  push:
+    branches:
+      - main # This is done so that merges to main are considered releases (Mainline Branching Strategy)
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+          registry-url: https://npm.pkg.github.com/
+          scope: '@remla23-team08'
+      
+      - name: Build the library
+        run: npm run build
+      
+      - name: Publish the library to GitHub Packages Registry
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
