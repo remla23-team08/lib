@@ -4,8 +4,11 @@
   "description": "A version-aware library that can be asked for its version",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "echo \"Info: Building the library\" && tsc"
   },
+  "files": [
+    "/dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/remla23-team08/lib.git"
@@ -15,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/remla23-team08/lib/issues"
   },
-  "homepage": "https://github.com/remla23-team08/lib#readme"
+  "homepage": "https://github.com/remla23-team08/lib#readme",
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  }
 }
