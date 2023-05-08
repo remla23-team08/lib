@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main # This is done so that merges to main are considered releases (Mainline Branching Strategy)
-      - feature/assignment-1 # Testing purposes
 jobs:
   bump_tag_and_release:
     name: Bump Version, Tag and Release
@@ -48,14 +47,13 @@ jobs:
           git commit -m "Bump version from ${{ steps.get_package_version.outputs.package_version }} to $UPDATED_VERSION in package.json [skip ci]"
           git push --set-upstream origin $(git branch --show-current)
 
-
-      # - name: Create Tag and GitHub Release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ steps.genberate_github_app_token.outputs.token }}
-      #   with:
-      #     tag_name: ${{ steps.get_package_version.outputs.package_version }}
-      #     release_name: ${{ steps.get_package_version.outputs.package_version }}
-      #     draft: false
-      #     prerelease: false
+      - name: Create Tag and GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ steps.genberate_github_app_token.outputs.token }}
+        with:
+          tag_name: ${{ steps.get_package_version.outputs.package_version }}
+          release_name: ${{ steps.get_package_version.outputs.package_version }}
+          draft: false
+          prerelease: false
           
