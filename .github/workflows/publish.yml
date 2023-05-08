@@ -1,0 +1,43 @@
+name: Release library by publishing as NPM package to GitHub Packages Registry
+on: 
+  release:
+    types: [published] # Only when a release is published (not when a draft is created)
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App Token
+        id: genberate_github_app_token
+        uses: tibdex/github-app-token@v1.7.0
+        with:
+          app_id: ${{ secrets.GH_APP_ID }}
+          private_key: ${{ secrets.GH_APP_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ steps.genberate_github_app_token.outputs.token }}
+          persist-credentials: true
+      
+      - name: Configure Git Credentials
+        run: |
+          git config user.name "GitHub Actions [bot]"
+          git config user.email "actions@github.com"
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+          registry-url: https://npm.pkg.github.com/
+          scope: '@remla23-team08'
+      
+      - name: Build the library
+        run: npm run build
+      
+      - name: Publish the library to GitHub Packages Registry
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ steps.genberate_github_app_token.outputs.token }}
+  

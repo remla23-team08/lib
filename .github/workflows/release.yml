@@ -1,0 +1,51 @@
+name: Tag and Release library
+on:
+  push:
+    branches:
+      - main # This is done so that merges to main are considered releases (Mainline Branching Strategy)
+jobs:
+  tag_and_release:
+    name: Tag and Release
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Generate GitHub App Token
+        id: genberate_github_app_token
+        uses: tibdex/github-app-token@v1.7.0
+        with:
+          app_id: ${{ secrets.GH_APP_ID }}
+          private_key: ${{ secrets.GH_APP_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ steps.genberate_github_app_token.outputs.token }}
+          persist-credentials: true
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+          registry-url: https://npm.pkg.github.com/
+          scope: '@remla23-team08'
+      
+      - name: Configure Git Credentials
+        run: |
+          git config user.name "GitHub Actions [bot]"
+          git config user.email "actions@github.com"
+      
+      - name: Get package version
+        id: get_package_version
+        run: | 
+          echo ::set-output name=package_version::$(node -p "require('./package.json').version")
+
+      - name: Create Tag and GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ steps.genberate_github_app_token.outputs.token }}
+        with:
+          tag_name: ${{ steps.get_package_version.outputs.package_version }}
+          release_name: ${{ steps.get_package_version.outputs.package_version }}
+          draft: false
+          prerelease: false
+          
