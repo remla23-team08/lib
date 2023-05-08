@@ -30,7 +30,9 @@ jobs:
         run: | 
           echo ::set-output name=package_version::$(node -p "require('./package.json').version")
           echo "Package version is ${{ steps.get_package_version.outputs.package_version }}"
-        
+
+      - name: Display package version
+        run: echo "Package version is ${{ steps.get_package_version.outputs.package_version }}"   
       # - name: Tag and Release library
       #   uses: actions/create-release@v1
       #   env:
