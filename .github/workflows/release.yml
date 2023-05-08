@@ -5,7 +5,8 @@ on:
       - main # This is done so that merges to main are considered releases (Mainline Branching Strategy)
       - feature/assignment-1 # Just for testing purposes
 jobs:
-  create_release:
+  tag_and_release:
+  name: Tag and Release
     runs-on: ubuntu-latest
     steps: 
       - name: Checkout repository
@@ -29,16 +30,13 @@ jobs:
         id: get_package_version
         run: | 
           echo ::set-output name=package_version::$(node -p "require('./package.json').version")
-          echo "Package version is ${{ steps.get_package_version.outputs.package_version }}"
 
-      - name: Display package version
-        run: echo "Package version is ${{ steps.get_package_version.outputs.package_version }}"   
-      # - name: Tag and Release library
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: ${{ github.ref }}
-      #     release_name: Release ${{ github.ref }}
-      #     draft: false
-      #     prerelease: false
+      - name: Create Tag and GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_package_version.outputs.package_version }}
+          release_name: ${{ steps.get_package_version.outputs.package_version }}
+          draft: false
+          prerelease: false
