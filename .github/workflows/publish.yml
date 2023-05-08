@@ -39,5 +39,5 @@ jobs:
       - name: Publish the library to GitHub Packages Registry
         run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ steps.genberate_github_app_token.outputs.token }}
+          NODE_AUTH_TOKEN: ${{ github.token }}
   
