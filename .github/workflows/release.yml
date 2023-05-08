@@ -1,5 +1,9 @@
 name: Tag and Release library
-on: [push]
+on:
+  push:
+    branches:
+      - main # This is done so that merges to main are considered releases (Mainline Branching Strategy)
+      - feature/assignment-1 # Just for testing purposes
 jobs:
   create_release:
     runs-on: ubuntu-latest
