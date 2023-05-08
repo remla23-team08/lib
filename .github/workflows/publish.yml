@@ -1,5 +1,7 @@
 name: Release library by publishing as NPM package to GitHub Packages Registry
-on: release # Only when releases are published do we publish the library as NPM package to GitHub Packages Registry
+on: 
+  release:
+    types: [published] # Only when a release is published (not when a draft is created)
 jobs:
   release:
     name: Release
