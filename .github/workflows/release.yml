@@ -6,7 +6,7 @@ on:
       - feature/assignment-1 # Just for testing purposes
 jobs:
   tag_and_release:
-  name: Tag and Release
+    name: Tag and Release
     runs-on: ubuntu-latest
     steps: 
       - name: Checkout repository
