@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main # This is done so that merges to main are considered releases (Mainline Branching Strategy)
-      - feature/** # Testing purposes
 jobs:
   bump_tag_and_release:
     name: Bump Version, Tag and Release
