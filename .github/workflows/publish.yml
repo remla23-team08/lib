@@ -1,4 +1,4 @@
-name: Release library by publishing as NPM package to GitHub Packages Registry
+name: Publish as NPM Package to GitHub Packages Registry
 on: 
   release:
     types: [published] # Only when a release is published (not when a draft is created)
@@ -29,7 +29,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16.x
           registry-url: https://npm.pkg.github.com/
           scope: '@remla23-team08'
       
