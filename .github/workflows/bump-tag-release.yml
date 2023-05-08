@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main # This is done so that merges to main are considered releases (Mainline Branching Strategy)
+      - feature/** # Testing purposes
 jobs:
   bump_tag_and_release:
     name: Bump Version, Tag and Release
@@ -34,8 +35,8 @@ jobs:
           git config user.name "GitHub Actions [bot]"
           git config user.email "actions@github.com"
 
-      - name: Get package version
-        id: get_package_version
+      - name: Get package version (Before Bump)
+        id: get_package_version_before
         run: | 
           echo ::set-output name=package_version::$(node -p "require('./package.json').version")
 
@@ -44,16 +45,26 @@ jobs:
           npm version patch --no-git-tag-version
           git add --all
           UPDATED_VERSION=$(node -p "require('./package.json').version")
-          git commit -m "Bump version from ${{ steps.get_package_version.outputs.package_version }} to $UPDATED_VERSION in package.json [skip ci]"
+          git commit -m "Bump version from ${{ steps.get_package_version_before.outputs.package_version }} to $UPDATED_VERSION in package.json [skip ci]"
           git push --set-upstream origin $(git branch --show-current)
+      
+      - name: Get package version (After Bump)
+        id: get_package_version_after
+        run: | 
+          echo ::set-output name=package_version::$(node -p "require('./package.json').version")
 
-      - name: Create Tag and GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ steps.genberate_github_app_token.outputs.token }}
-        with:
-          tag_name: ${{ steps.get_package_version.outputs.package_version }}
-          release_name: ${{ steps.get_package_version.outputs.package_version }}
-          draft: false
-          prerelease: false
+      - name: Display old and new version
+        run: |
+          echo "Old version was ${{ steps.get_package_version_before.outputs.package_version }}"
+          echo "New version is ${{ steps.get_package_version_after.outputs.package_version }}"
+
+      # - name: Create Tag and GitHub Release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ steps.genberate_github_app_token.outputs.token }}
+      #   with:
+      #     tag_name: ${{ steps.get_package_version_after.outputs.package_version }}
+      #     release_name: ${{ steps.get_package_version_after.outputs.package_version }}
+      #     draft: false
+      #     prerelease: false
           
