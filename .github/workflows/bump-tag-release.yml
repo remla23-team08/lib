@@ -48,6 +48,7 @@ jobs:
           git commit -m "Bump version from ${{ steps.get_package_version.outputs.package_version }} to $UPDATED_VERSION in package.json [skip ci]"
           git push --set-upstream origin $(git branch --show-current)
 
+
       # - name: Create Tag and GitHub Release
       #   uses: actions/create-release@v1
       #   env:
