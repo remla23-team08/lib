@@ -2,7 +2,7 @@ name: Tag and Release library
 on:
   push:
     branches:
-      - blank # This is done so that merges to main are considered releases (Mainline Branching Strategy)
+      - main # This is done so that merges to main are considered releases (Mainline Branching Strategy)
 jobs:
   bump_tag_and_release:
     name: Bump Version, Tag and Release
