@@ -3,9 +3,10 @@ on:
   push:
     branches:
       - main # This is done so that merges to main are considered releases (Mainline Branching Strategy)
+      - feature/assignment-1 # Testing purposes
 jobs:
-  tag_and_release:
-    name: Tag and Release
+  bump_tag_and_release:
+    name: Bump Version, Tag and Release
     runs-on: ubuntu-latest
     steps: 
       - name: Generate GitHub App Token
@@ -25,7 +26,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16.x
           registry-url: https://npm.pkg.github.com/
           scope: '@remla23-team08'
       
@@ -33,19 +34,27 @@ jobs:
         run: |
           git config user.name "GitHub Actions [bot]"
           git config user.email "actions@github.com"
-      
+
       - name: Get package version
         id: get_package_version
         run: | 
           echo ::set-output name=package_version::$(node -p "require('./package.json').version")
 
-      - name: Create Tag and GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ steps.genberate_github_app_token.outputs.token }}
-        with:
-          tag_name: ${{ steps.get_package_version.outputs.package_version }}
-          release_name: ${{ steps.get_package_version.outputs.package_version }}
-          draft: false
-          prerelease: false
+      - name: Bump package version
+        run: |
+          npm version patch --no-git-tag-version ${{ steps.get_package_version.outputs.package_version }}
+          git add --all
+          UPDATED_VERSION=$(node -p "require('./package.json').version")
+          git commit -m "Bump version from ${{ steps.get_package_version.outputs.package_version }} to $UPDATED_VERSION in package.json"
+          git push --set-upstream origin $(git branch --show-current)
+
+      # - name: Create Tag and GitHub Release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ steps.genberate_github_app_token.outputs.token }}
+      #   with:
+      #     tag_name: ${{ steps.get_package_version.outputs.package_version }}
+      #     release_name: ${{ steps.get_package_version.outputs.package_version }}
+      #     draft: false
+      #     prerelease: false
           
