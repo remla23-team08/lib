@@ -9,10 +9,19 @@ jobs:
     name: Tag and Release
     runs-on: ubuntu-latest
     steps: 
+      - name: Generate GitHub App Token
+        id: genberate_github_app_token
+        uses: tibdex/github-app-token@v1.7.0
+        with:
+          app_id: ${{ secrets.GH_APP_ID }}
+          private_key: ${{ secrets.GH_APP_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          token: ${{ steps.genberate_github_app_token.outputs.token }}
+          persist-credentials: true
       
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -34,7 +43,7 @@ jobs:
       - name: Create Tag and GitHub Release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.genberate_github_app_token.outputs.token }}
         with:
           tag_name: ${{ steps.get_package_version.outputs.package_version }}
           release_name: ${{ steps.get_package_version.outputs.package_version }}
