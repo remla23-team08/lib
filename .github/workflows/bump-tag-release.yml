@@ -45,7 +45,7 @@ jobs:
           npm version patch --no-git-tag-version
           git add --all
           UPDATED_VERSION=$(node -p "require('./package.json').version")
-          git commit -m "Bump version from ${{ steps.get_package_version.outputs.package_version }} to $UPDATED_VERSION in package.json"
+          git commit -m "Bump version from ${{ steps.get_package_version.outputs.package_version }} to $UPDATED_VERSION in package.json [skip ci]"
           git push --set-upstream origin $(git branch --show-current)
 
       # - name: Create Tag and GitHub Release
