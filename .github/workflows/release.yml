@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main # This is done so that merges to main are considered releases (Mainline Branching Strategy)
-      - feature/assignment-1 # Just for testing purposes
 jobs:
   tag_and_release:
     name: Tag and Release
@@ -49,3 +48,4 @@ jobs:
           release_name: ${{ steps.get_package_version.outputs.package_version }}
           draft: false
           prerelease: false
+          
