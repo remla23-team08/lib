@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
       - name: Generate GitHub App Token
-        id: genberate_github_app_token
+        id: generate_github_app_token
         uses: tibdex/github-app-token@v1.7.0
         with:
           app_id: ${{ secrets.GH_APP_ID }}
@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          token: ${{ steps.genberate_github_app_token.outputs.token }}
+          token: ${{ steps.generate_github_app_token.outputs.token }}
           persist-credentials: true
       
       - name: Setup Node.js
@@ -34,8 +34,8 @@ jobs:
           git config user.name "GitHub Actions [bot]"
           git config user.email "actions@github.com"
 
-      - name: Get package version
-        id: get_package_version
+      - name: Get package version (Before Bump)
+        id: get_package_version_before
         run: | 
           echo ::set-output name=package_version::$(node -p "require('./package.json').version")
 
@@ -44,16 +44,26 @@ jobs:
           npm version patch --no-git-tag-version
           git add --all
           UPDATED_VERSION=$(node -p "require('./package.json').version")
-          git commit -m "Bump version from ${{ steps.get_package_version.outputs.package_version }} to $UPDATED_VERSION in package.json [skip ci]"
+          git commit -m "Bump version from ${{ steps.get_package_version_before.outputs.package_version }} to $UPDATED_VERSION in package.json [skip ci]"
           git push --set-upstream origin $(git branch --show-current)
+      
+      - name: Get package version (After Bump)
+        id: get_package_version_after
+        run: | 
+          echo ::set-output name=package_version::$(node -p "require('./package.json').version")
+
+      - name: Display old and new version
+        run: |
+          echo "Old version was ${{ steps.get_package_version_before.outputs.package_version }}"
+          echo "New version is ${{ steps.get_package_version_after.outputs.package_version }}"
 
       - name: Create Tag and GitHub Release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ steps.genberate_github_app_token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.generate_github_app_token.outputs.token }}
         with:
-          tag_name: ${{ steps.get_package_version.outputs.package_version }}
-          release_name: ${{ steps.get_package_version.outputs.package_version }}
+          tag_name: ${{ steps.get_package_version_after.outputs.package_version }}
+          release_name: ${{ steps.get_package_version_after.outputs.package_version }}
           draft: false
           prerelease: false
           
