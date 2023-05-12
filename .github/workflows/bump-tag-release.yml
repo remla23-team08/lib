@@ -21,6 +21,25 @@ jobs:
           fetch-depth: 0
           token: ${{ steps.generate_github_app_token.outputs.token }}
           persist-credentials: true
+    
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '3.1.x'
+        env: 
+          DOTNET_INSTALL_DIR: ${{ runner.workspace }}/dotnet
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0
+        with:
+          versionSpec: '5.x'
+        
+      - name: Get GitVersion
+        id: get_gitversion
+        uses: gittools/actions/gitversion/execute@v0
+        with:
+          useConfigFile: true
+          configFilePath: GitVersion.yml
       
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -34,36 +53,24 @@ jobs:
           git config user.name "GitHub Actions [bot]"
           git config user.email "actions@github.com"
 
-      - name: Get package version (Before Bump)
-        id: get_package_version_before
-        run: | 
-          echo ::set-output name=package_version::$(node -p "require('./package.json').version")
-
       - name: Bump package version
         run: |
-          npm version patch --no-git-tag-version
+          npm version ${{ steps.get_gitversion.outputs.majorMinorPatch }} --no-git-tag-version
           git add --all
-          UPDATED_VERSION=$(node -p "require('./package.json').version")
-          git commit -m "Bump version from ${{ steps.get_package_version_before.outputs.package_version }} to $UPDATED_VERSION in package.json [skip ci]"
+          git commit -m "Update to version ${{ steps.get_gitversion.outputs.majorMinorPatch }} in package.json [skip ci]"
           git push --set-upstream origin $(git branch --show-current)
-      
-      - name: Get package version (After Bump)
-        id: get_package_version_after
-        run: | 
-          echo ::set-output name=package_version::$(node -p "require('./package.json').version")
 
-      - name: Display old and new version
-        run: |
-          echo "Old version was ${{ steps.get_package_version_before.outputs.package_version }}"
-          echo "New version is ${{ steps.get_package_version_after.outputs.package_version }}"
-
-      - name: Create Tag and GitHub Release
-        uses: actions/create-release@v1
-        env:
+      - name: Tag and Release
+        env: 
           GITHUB_TOKEN: ${{ steps.generate_github_app_token.outputs.token }}
-        with:
-          tag_name: ${{ steps.get_package_version_after.outputs.package_version }}
-          release_name: ${{ steps.get_package_version_after.outputs.package_version }}
-          draft: false
-          prerelease: false
-          
+        run: |
+          git status # This is just to check if the git config worked
+          git pull origin main # In case any changes were made since checkout
+          git tag ${{ steps.get_gitversion.outputs.majorMinorPatch }} -m "Release ${{ steps.get_gitversion.outputs.majorMinorPatch }}"
+          git push --tags
+
+          # Create a GitHub release from latest tag
+          gh release create ${{ steps.get_gitversion.outputs.majorMinorPatch }} \
+            --title "${{ steps.get_gitversion.outputs.majorMinorPatch }}" \
+            --generate-notes
+  
