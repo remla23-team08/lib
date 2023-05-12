@@ -17,5 +17,3 @@ VersionUtil.getMinorVersion()
 // To get the patch version number
 VersionUtil.getPatchVersion()
 ```
-
-Naturally, there are also functions to upgrade each of the corresponding version components in the same class.
